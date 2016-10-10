@@ -14,7 +14,7 @@ int main()
 	vm.bitsPerPixel = 32;
 
 	sf::ContextSettings settings;
-	settings.antialiasingLevel = 0;
+	settings.antialiasingLevel = 2;
 
 	sf::RenderWindow window(vm, "Connect Four", sf::Style::Titlebar | sf::Style::Close, settings);
 	window.setVerticalSyncEnabled(false);

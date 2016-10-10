@@ -9,3 +9,8 @@ ai::ai(ConnectFour* gm)
 ai::~ai()
 {
 }
+
+int ai::think()
+{
+	return rand()%7;
+}
