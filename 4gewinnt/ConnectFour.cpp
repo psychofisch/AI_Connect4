@@ -5,7 +5,8 @@ ConnectFour::ConnectFour(sf::RenderWindow * wndw)
 	:m_board(nullptr),
 	m_size(7,6),
 	m_currentSelection(0),
-	m_state(GS_INIT)
+	m_gamestate(GS_INIT),
+	m_roundstate(P_1)
 {
 	m_window = wndw;
 
@@ -31,7 +32,7 @@ ConnectFour::~ConnectFour()
 
 void ConnectFour::run()
 {
-	m_state = GS_1;
+	m_gamestate = GS_RUNNING;
 
 	sf::Event eve;
 
@@ -58,26 +59,29 @@ void ConnectFour::run()
 			{
 				if (eve.mouseButton.button == sf::Mouse::Left)
 				{
-					
+					if (m_gamestate != GS_RUNNING)
+						break;
 
 					std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
 					FieldState player = FIELD_FREE;
-					if (m_state == GS_1)
+					if (m_roundstate == P_1)
 						player = FIELD_1;
-					else if (m_state == GS_2)
+					else
 						player = FIELD_2;
 
 					if (player == FIELD_FREE)
 						break;
 					bool added = addStone(currentColumn, player);
 
+					isFinished();
 					if (added)
-						isFinished();
+						if (m_gamestate == GS_END)
+							break;
 
-					if (added && m_state == GS_1)
-						m_state = GS_2;
+					if (added && m_roundstate == P_1)
+						m_roundstate = P_2;
 					else
-						m_state = GS_1;
+						m_roundstate = P_1;
 				}
 				break;
 			}
@@ -113,14 +117,16 @@ void ConnectFour::run()
 			}
 		}
 		//****
-
-		m_window->clear(sf::Color::White);
+		if(m_gamestate == GS_END)
+			m_window->clear(sf::Color::Black);
+		else
+			m_window->clear(sf::Color::White);
 		//Render
 		sf::CircleShape arrow(46, 3);
 		arrow.setRotation(180);
-		if(m_state == GS_1)
+		if(m_roundstate == P_1)
 			arrow.setFillColor(Color_1);
-		else if(m_state == GS_2)
+		else if(m_roundstate == P_2)
 			arrow.setFillColor(Color_2);
 		arrow.setPosition(sf::Vector2f((720.0f / 7) + floor((mousePos.x / 720) * 7) * (720.0f / 7), 100));
 		m_window->draw(arrow);
@@ -130,7 +136,7 @@ void ConnectFour::run()
 			//m_board[x] = new int[m_size.y];
 			for (int y = 0; y < 6; ++y)
 			{
-				m_circle.setPosition(sf::Vector2f(23 + (x*100), 110.0f + (y * 100)));
+				m_circle.setPosition(sf::Vector2f(23.0f + (x*100), 110.0f + (y * 100)));
 				sf::Color current(sf::Color::Red);
 
 				if (m_board[x][y] == FIELD_FREE)
@@ -186,25 +192,98 @@ bool ConnectFour::addStone(int pos, FieldState player)
 
 GameState ConnectFour::isFinished()
 {
-	int count;
-	FieldState player;
-
+	//VERTICAL
 	for (int x = 0; x < m_size.x; ++x)
 	{
-		int connected[2] = { 0, 0};
+		int connected = 0;
 		for (int y = m_size.y - 1; y >= 0; --y)
 		{
-			std::cout << m_board[x][y];
-			if (m_board[x][y] == FIELD_1)
-				connected[0]++;
-			else if (m_board[x][y] == FIELD_2)
-				connected[1]++;
-			else if (m_board[x][y] == FIELD_FREE)
+			switch (m_board[x][y])
 			{
+			case FIELD_1: connected++;
+				break;
+			case FIELD_2: connected--;
+				break;
+			case FIELD_FREE: y = -1;
 				break;
 			}
 		}
-		std::cout << std::endl;
+
+		if (connected == 4 || connected == -4)
+		{
+			if (connected == 4)
+				m_roundstate = P_2;
+			else
+				m_roundstate = P_1;
+			m_gamestate = GS_END;
+			break;
+		}
+	}
+
+	//HORIZONTAL
+	for (int y = m_size.y - 1; y >= 0; --y)
+	{
+		int connected = 0;
+		FieldState current = FIELD_FREE;
+		for (int x = 0; x < m_size.x; ++x)
+		{
+			if (m_board[x][y] != FIELD_FREE)
+			{
+				if (m_board[x][y] == current)
+					connected++;
+				else
+				{
+					current = static_cast<FieldState>(m_board[x][y]);
+					connected = 1;
+				}
+			}
+
+			if (connected == 4 || connected == -4)
+			{
+				if (connected == 4)
+					m_roundstate = P_2;
+				else
+					m_roundstate = P_1;
+				m_gamestate = GS_END;
+				break;
+			}
+		}
+	}
+
+	//DIAGONAL
+	for (int i = 0; i < 12; ++i)
+	{
+		int connected = 0;
+		FieldState current = FIELD_FREE;
+		for (int j = 0; j < 6; ++j)
+		{
+			if (winning_fields[i][j] == 99)
+				break;
+
+			int y = winning_fields[i][j] % 10;
+			int x = (winning_fields[i][j]/10) % 10;
+
+			if (m_board[x][y] != FIELD_FREE)
+			{
+				if (m_board[x][y] == current)
+					connected++;
+				else
+				{
+					current = static_cast<FieldState>(m_board[x][y]);
+					connected = 1;
+				}
+			}
+
+			if (connected == 4 || connected == -4)
+			{
+				if (connected == 4)
+					m_roundstate = P_2;
+				else
+					m_roundstate = P_1;
+				m_gamestate = GS_END;
+				break;
+			}
+		}
 	}
 
 	return GS_UNCHANGED;

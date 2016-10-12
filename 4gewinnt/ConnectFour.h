@@ -3,6 +3,8 @@
 #include <SFML\Graphics.hpp>
 #include <iostream>
 
+#include "winning_fields.h"
+
 #define Color_1 sf::Color(147, 69, 173)
 #define Color_2 sf::Color(76, 150, 173)
 
@@ -15,8 +17,8 @@
 */
 
 enum FieldState { FIELD_FREE, FIELD_1, FIELD_2 };
-enum GameState { GS_INIT, GS_1, GS_2, GS_WIN, GS_LOSE, GS_TIE, GS_UNCHANGED };
-enum PlayerState{ P_GS_1, P_GS_2 };
+enum GameState { GS_INIT, GS_RUNNING, GS_END, GS_UNCHANGED };
+enum RoundState{ P_1, P_2 };
 
 class ConnectFour
 {
@@ -34,5 +36,6 @@ private:
 	sf::Clock m_clock;
 	int m_currentSelection;
 	sf::CircleShape m_circle;
-	GameState m_state;
+	GameState m_gamestate;
+	RoundState m_roundstate;
 };

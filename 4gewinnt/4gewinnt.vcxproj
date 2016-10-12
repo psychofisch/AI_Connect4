@@ -158,6 +158,10 @@
   <ItemGroup>
     <ClInclude Include="ai.h" />
     <ClInclude Include="ConnectFour.h" />
+    <ClCompile Include="winning_fields.cpp">
+      <FileType>CppHeader</FileType>
+    </ClCompile>
+    <ClInclude Include="winning_fields.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

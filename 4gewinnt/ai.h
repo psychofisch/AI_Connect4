@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ConnectFour.h"
+#include "winning_fields.h"
 
 class ai
 {
@@ -11,4 +12,3 @@ public:
 private:
 	ConnectFour* m_game;
 };
-
