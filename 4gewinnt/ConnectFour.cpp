@@ -58,6 +58,8 @@ void ConnectFour::run()
 			{
 				if (eve.mouseButton.button == sf::Mouse::Left)
 				{
+					
+
 					std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
 					FieldState player = FIELD_FREE;
 					if (m_state == GS_1)
@@ -189,10 +191,15 @@ GameState ConnectFour::isFinished()
 
 	for (int x = 0; x < m_size.x; ++x)
 	{
+		int connected[2] = { 0, 0};
 		for (int y = m_size.y - 1; y >= 0; --y)
 		{
 			std::cout << m_board[x][y];
-			if (m_board[x][y] == FIELD_FREE)
+			if (m_board[x][y] == FIELD_1)
+				connected[0]++;
+			else if (m_board[x][y] == FIELD_2)
+				connected[1]++;
+			else if (m_board[x][y] == FIELD_FREE)
 			{
 				break;
 			}

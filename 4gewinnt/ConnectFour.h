@@ -16,6 +16,7 @@
 
 enum FieldState { FIELD_FREE, FIELD_1, FIELD_2 };
 enum GameState { GS_INIT, GS_1, GS_2, GS_WIN, GS_LOSE, GS_TIE, GS_UNCHANGED };
+enum PlayerState{ P_GS_1, P_GS_2 };
 
 class ConnectFour
 {
