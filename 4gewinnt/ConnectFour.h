@@ -25,10 +25,12 @@ class ConnectFour
 public:
 	ConnectFour(sf::RenderWindow* wndw);
 	~ConnectFour();
-
 	void run();
 	bool addStone(int pos, FieldState player);
-	GameState isFinished();
+	bool isFinished();
+	void nextPlayer();
+	RoundState currentPlayer() const;
+	const int** getBoard() const;
 private:
 	sf::Vector2i m_size;
 	int** m_board;

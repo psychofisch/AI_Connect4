@@ -59,29 +59,31 @@ void ConnectFour::run()
 			{
 				if (eve.mouseButton.button == sf::Mouse::Left)
 				{
-					if (m_gamestate != GS_RUNNING)
+					if (m_gamestate != GS_RUNNING || m_roundstate != P_1)
 						break;
-
-					std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
-					FieldState player = FIELD_FREE;
+					FieldState player = FIELD_1;
+					//std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
+					/*FieldState player = FIELD_FREE;
 					if (m_roundstate == P_1)
 						player = FIELD_1;
 					else
 						player = FIELD_2;
 
 					if (player == FIELD_FREE)
-						break;
-					bool added = addStone(currentColumn, player);
+						break;*/
 
-					isFinished();
-					if (added)
+					if (addStone(currentColumn, player))
+					{
+						isFinished();
+					}
+					/*if (added)
 						if (m_gamestate == GS_END)
 							break;
 
 					if (added && m_roundstate == P_1)
 						m_roundstate = P_2;
 					else
-						m_roundstate = P_1;
+						m_roundstate = P_1;*/
 				}
 				break;
 			}
@@ -117,6 +119,7 @@ void ConnectFour::run()
 			}
 		}
 		//****
+
 		if(m_gamestate == GS_END)
 			m_window->clear(sf::Color::Black);
 		else
@@ -171,32 +174,34 @@ bool ConnectFour::addStone(int pos, FieldState player)
 	return done;
 }
 
-GameState ConnectFour::isFinished()
+bool ConnectFour::isFinished()
 {
+	int connected;
+	FieldState current = FIELD_FREE;
+	bool isFinished = false;
 	//VERTICAL
 	for (int x = 0; x < m_size.x; ++x)
 	{
-		int connected = 0;
+		connected = 0;
 		for (int y = m_size.y - 1; y >= 0; --y)
 		{
-			switch (m_board[x][y])
+			if (m_board[x][y] != FIELD_FREE)
 			{
-			case FIELD_1: connected++;
-				break;
-			case FIELD_2: connected--;
-				break;
-			case FIELD_FREE: y = -1;
-				break;
+				if (m_board[x][y] == current)
+					connected++;
+				else
+				{
+					current = static_cast<FieldState>(m_board[x][y]);
+					connected = 1;
+				}
 			}
+			else
+				y = -1; //break condition
 		}
 
 		if (connected == 4 || connected == -4)
 		{
-			if (connected == 4)
-				m_roundstate = P_2;
-			else
-				m_roundstate = P_1;
-			m_gamestate = GS_END;
+			isFinished = true;
 			break;
 		}
 	}
@@ -204,8 +209,8 @@ GameState ConnectFour::isFinished()
 	//HORIZONTAL
 	for (int y = m_size.y - 1; y >= 0; --y)
 	{
-		int connected = 0;
-		FieldState current = FIELD_FREE;
+		connected = 0;
+		current = FIELD_FREE;
 		for (int x = 0; x < m_size.x; ++x)
 		{
 			if (m_board[x][y] != FIELD_FREE)
@@ -221,11 +226,7 @@ GameState ConnectFour::isFinished()
 
 			if (connected == 4 || connected == -4)
 			{
-				if (connected == 4)
-					m_roundstate = P_2;
-				else
-					m_roundstate = P_1;
-				m_gamestate = GS_END;
+				isFinished = GS_END;
 				break;
 			}
 		}
@@ -257,15 +258,36 @@ GameState ConnectFour::isFinished()
 
 			if (connected == 4 || connected == -4)
 			{
-				if (connected == 4)
-					m_roundstate = P_2;
-				else
-					m_roundstate = P_1;
-				m_gamestate = GS_END;
+				isFinished = true;
 				break;
 			}
 		}
 	}
 
-	return GS_UNCHANGED;
+	if (isFinished)
+	{
+		m_gamestate = GS_END;
+	}
+	else
+		m_roundstate = P_2;
+
+	return isFinished;
+}
+
+void ConnectFour::nextPlayer()
+{
+	if (m_roundstate == P_1)
+		m_roundstate = P_2;
+	else
+		m_roundstate = P_1;
+}
+
+RoundState ConnectFour::currentPlayer() const
+{
+	return m_roundstate;
+}
+
+const int ** ConnectFour::getBoard() const
+{
+	return const_cast<const int**>(m_board);
 }
