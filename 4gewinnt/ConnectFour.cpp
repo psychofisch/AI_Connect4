@@ -150,25 +150,6 @@ void ConnectFour::run()
 				m_window->draw(m_circle);
 			}
 		}
-		/*
-		m_window->draw(background);
-
-		element* tiles = m_board->getElements();
-		for (int i = 0; i < m_board->getSize() * m_board->getSize(); ++i)
-		{
-			if (tiles[i].isEnabled())
-			{
-				sf::Vector2f pos(70.0f * tiles[i].getX(), 70.0f * tiles[i].getY());
-				tileSprite.setPosition(pos);
-				m_window->draw(tileSprite);
-
-				values.setString(std::to_string(tiles[i].getValue()));
-				values.setPosition(pos + (sf::Vector2f(values.getGlobalBounds().width / 2, values.getGlobalBounds().height / 2)));
-				m_window->draw(values);
-			}
-		}
-		//****
-		*/
 		m_window->display();
 		dt = m_clock.getElapsedTime().asSeconds();
 	}
@@ -260,8 +241,8 @@ GameState ConnectFour::isFinished()
 			if (winning_fields[i][j] == 99)
 				break;
 
+			int x = (winning_fields[i][j] / 10) % 10;
 			int y = winning_fields[i][j] % 10;
-			int x = (winning_fields[i][j]/10) % 10;
 
 			if (m_board[x][y] != FIELD_FREE)
 			{
