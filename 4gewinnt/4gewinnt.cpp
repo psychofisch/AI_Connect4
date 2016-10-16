@@ -24,13 +24,16 @@ int main()
 	window.setFramerateLimit(60);
 
 	std::cout << "creating game...\n";
-	ConnectFour game(&window);
+	ConnectFour game;
+	game.setWindow(&window);
 
 	std::cout << "give birth to npc...\n";
 	ai npc(&game, P_2);
+	ai npc2(&game, P_1);
 
 	std::cout << "starting artificial intelligence...\n";
 	std::thread ai_thread(&ai::run, &npc);
+	std::thread ai_thread2(&ai::run, &npc2);
 
 	std::cout << "starting game!\n";
 	game.run();
@@ -38,9 +41,11 @@ int main()
 
 	std::cout << "killing ai...\n";
 	npc.kill();
+	npc2.kill();
 
 	std::cout << "waiting for ai to die...\n";
 	ai_thread.join();
+	ai_thread2.join();
 
 	std::cout << "bye.\n";
 	return 0;

@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <chrono>
+#include <algorithm>
 
 #include "ConnectFour.h"
 #include "winning_fields.h"
@@ -9,7 +10,7 @@
 class ai
 {
 public:
-	ai(ConnectFour* gm, RoundState rs);
+	ai(ConnectFour* gm, PlayerInfo rs);
 	~ai();
 	void run();
 	int think();
@@ -18,8 +19,11 @@ public:
 private:
 	bool m_alive;
 	ConnectFour* m_game;
-	const int** m_board;
+	ConnectFour m_game_cpy;
+	//const int** m_board;
 	bool m_isFinished;
-	RoundState m_playerNo;
+	PlayerInfo m_playerNo;
 	bool m_thinking;
+	int negamax(ConnectFour* game, int depth, int alpha, int beta, int player);
+	int heuristic(ConnectFour* game);
 };

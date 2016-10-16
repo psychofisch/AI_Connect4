@@ -2,6 +2,7 @@
 
 #include <SFML\Graphics.hpp>
 #include <iostream>
+#include <stack>
 
 #include "winning_fields.h"
 
@@ -16,21 +17,24 @@
 76,150,173
 */
 
-enum FieldState { FIELD_FREE, FIELD_1, FIELD_2 };
 enum GameState { GS_INIT, GS_RUNNING, GS_END, GS_UNCHANGED };
-enum RoundState{ P_1, P_2 };
+enum PlayerInfo{ P_1 = -1, P_2 = 1, P_NONE = 0 };
 
 class ConnectFour
 {
 public:
-	ConnectFour(sf::RenderWindow* wndw);
+	ConnectFour();
 	~ConnectFour();
 	void run();
-	bool addStone(int pos, FieldState player);
+	bool addStone(int pos, PlayerInfo player);
 	bool isFinished();
 	void nextPlayer();
-	RoundState currentPlayer() const;
+	PlayerInfo currentPlayer() const;
 	const int** getBoard() const;
+	int getLastMove();
+	bool removeLastStone();
+	sf::Vector2i getSize();
+	void setWindow(sf::RenderWindow* wndw);
 private:
 	sf::Vector2i m_size;
 	int** m_board;
@@ -39,5 +43,6 @@ private:
 	int m_currentSelection;
 	sf::CircleShape m_circle;
 	GameState m_gamestate;
-	RoundState m_roundstate;
+	PlayerInfo m_playerInfo;
+	std::stack<int> m_lastMoves;
 };
