@@ -5,7 +5,8 @@ ai::ai(ConnectFour* gm, PlayerInfo rs)
 	m_alive(true)
 {
 	m_game = gm;
-	//m_board = m_game->getBoard();
+	m_game_cpy = new ConnectFour(*gm);
+	//m_board = m_game_cpy.getBoard();
 	m_playerNo = rs;
 }
 
@@ -16,13 +17,17 @@ ai::~ai()
 
 void ai::run()
 {
+	srand(123);
 	while (m_alive)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		if (m_game->currentPlayer() == m_playerNo)
 		{
-			if (m_game->addStone(think(), m_playerNo))
+			m_game_cpy = new ConnectFour(*m_game);
+			int move = think();
+			if (m_game_cpy->addStone(move, m_playerNo))
 			{
+				m_game->addStone(move, m_playerNo);
 				if (m_game->isFinished())
 				{
 					kill();//I WON SO I CAN DIE IN PEACE! *harakiri*
@@ -37,9 +42,10 @@ void ai::run()
 int ai::think()
 {
 	m_isFinished = false;
-	int pos = negamax(m_game, 5, -INFINITY, INFINITY, m_playerNo);
+	int column = 0;
+	int pos = negamax(m_game_cpy, 6, -INT_MAX, INT_MAX, m_playerNo, &column);
 	m_isFinished = true;
-	return pos;
+	return column;
 }
 
 bool ai::isFinished()
@@ -69,19 +75,36 @@ WIKIPEDIA: Negamax
 13     return bestValue
 */
 
-int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player)
+int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, int* column)
 {
 	if (depth == 0 || game->isFinished())
 		return player * heuristic(game);
 
-	int best = 0;
-	for (int x = 0; x < m_game->getSize().x; ++x)
+	int best = -INT_MAX;
+	for (int x = 0; x < m_game_cpy->getSize().x; ++x)
 	{
-		if (game->getBoard()[best][5] != P_NONE)
-			continue;
+		if (game->getBoard()[x][0] != P_NONE)
+		{
+			/*best = -INT_MAX;
+			if (column != nullptr)
+			{
+				if(x == m_game_cpy->getSize().x)
 
-		int v = -negamax(game, depth - 1, -beta, -alpha, -player);
-		best = std::max(0, v);
+				*column = ;
+			}*/
+			continue;
+		}
+
+		game->addStone(x, static_cast<PlayerInfo>(player));
+		int v = -negamax(game, depth - 1, -beta, -alpha, -player, nullptr);
+		game->removeLastStone();
+		//best = std::max(best, v);
+		if (v > best)
+		{
+			best = v;
+			if(column != nullptr)
+				*column = x;
+		}
 	}
 
 	return best;

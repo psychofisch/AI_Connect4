@@ -25,12 +25,13 @@ class ConnectFour
 public:
 	ConnectFour();
 	~ConnectFour();
+	ConnectFour(ConnectFour& other);
 	void run();
 	bool addStone(int pos, PlayerInfo player);
 	bool isFinished();
 	void nextPlayer();
 	PlayerInfo currentPlayer() const;
-	const int** getBoard() const;
+	const int** const getBoard() const;
 	int getLastMove();
 	bool removeLastStone();
 	sf::Vector2i getSize();

@@ -19,11 +19,11 @@ public:
 private:
 	bool m_alive;
 	ConnectFour* m_game;
-	ConnectFour m_game_cpy;
+	ConnectFour* m_game_cpy;
 	//const int** m_board;
 	bool m_isFinished;
 	PlayerInfo m_playerNo;
 	bool m_thinking;
-	int negamax(ConnectFour* game, int depth, int alpha, int beta, int player);
+	int negamax(ConnectFour* game, int depth, int alpha, int beta, int player, int* column);
 	int heuristic(ConnectFour* game);
 };

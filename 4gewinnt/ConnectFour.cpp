@@ -10,10 +10,10 @@ ConnectFour::ConnectFour()
 {
 	m_board = new int*[m_size.x];
 
-	for (int x = 0; x < 7; ++x)
+	for (int x = 0; x < m_size.x; ++x)
 	{
 		m_board[x] = new int[m_size.y];
-		for (int y = 0; y < 6; ++y)
+		for (int y = 0; y < m_size.y; ++y)
 		{
 			m_board[x][y] = P_NONE;
 		}
@@ -25,12 +25,35 @@ ConnectFour::ConnectFour()
 
 ConnectFour::~ConnectFour()
 {
-	for (int x = 0; x < 7; ++x)
+	for (int x = 0; x < m_size.x; ++x)
 	{
 		delete m_board[x];
 	}
 
 	delete[] m_board;
+}
+
+ConnectFour::ConnectFour(ConnectFour & other)
+	:m_size(other.m_size),
+	m_window(other.m_window),
+	m_currentSelection(other.m_currentSelection),
+	m_gamestate(other.m_gamestate),
+	m_playerInfo(other.m_playerInfo),
+	m_lastMoves(other.m_lastMoves)
+{
+	m_board = new int*[m_size.x];
+
+	for (int x = 0; x < m_size.x; ++x)
+	{
+		m_board[x] = new int[m_size.y];
+		for (int y = 0; y < m_size.y; ++y)
+		{
+			m_board[x][y] = static_cast<PlayerInfo>(other.m_board[x][y]);
+		}
+	}
+
+	m_circle.setRadius(46.0f);
+	m_circle.setFillColor(sf::Color::Black);
 }
 
 void ConnectFour::run()
@@ -185,6 +208,7 @@ bool ConnectFour::isFinished()
 	int connected;
 	PlayerInfo current = P_NONE;
 	bool isFinished = false;
+
 	//VERTICAL
 	for (int x = 0; x < m_size.x; ++x)
 	{
@@ -294,9 +318,10 @@ PlayerInfo ConnectFour::currentPlayer() const
 	return m_playerInfo;
 }
 
-const int ** ConnectFour::getBoard() const
+const int ** const ConnectFour::getBoard() const
 {
 	return const_cast<const int**>(m_board);
+	//return (m_board);
 }
 
 int ConnectFour::getLastMove()
