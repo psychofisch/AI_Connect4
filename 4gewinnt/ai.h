@@ -3,6 +3,7 @@
 #include <thread>
 #include <chrono>
 #include <algorithm>
+#include <chrono>
 
 #include "ConnectFour.h"
 #include "winning_fields.h"

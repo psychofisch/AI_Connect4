@@ -99,7 +99,8 @@ void ConnectFour::run()
 
 					if (addStone(currentColumn, m_playerInfo))
 					{
-						isFinished();
+						if (!isFinished())
+							m_playerInfo = static_cast<PlayerInfo>(-m_playerInfo);
 					}
 					/*if (added)
 						if (m_gamestate == GS_END)
@@ -254,7 +255,7 @@ bool ConnectFour::isFinished()
 				}
 			}
 			else {
-				current == P_NONE;
+				current = P_NONE;
 				connected = 1;
 			}
 
@@ -288,6 +289,10 @@ bool ConnectFour::isFinished()
 					current = static_cast<PlayerInfo>(m_board[x][y]);
 					connected = 1;
 				}
+			}
+			else {
+				current = P_NONE;
+				connected = 1;
 			}
 
 			if (connected == 4 || connected == -4)

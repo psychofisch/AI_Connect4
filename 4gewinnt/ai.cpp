@@ -20,7 +20,7 @@ void ai::run()
 	srand(123);
 	while (m_alive)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		if (m_game->currentPlayer() == m_playerNo)
 		{
 			m_game_cpy = new ConnectFour(*m_game);
@@ -41,10 +41,19 @@ void ai::run()
 
 int ai::think()
 {
+	std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+
 	m_isFinished = false;
 	int column = 0;
 	int pos = negamax(m_game_cpy, 6, -INT_MAX, INT_MAX, m_playerNo, &column);
 	m_isFinished = true;
+	std::cout << m_playerNo << ": col " << column << " | heur " << pos << std::endl;
+
+	std::chrono::high_resolution_clock::time_point stop = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<float> d = std::chrono::duration_cast<std::chrono::duration<float>>(stop - start);
+
+	std::cout << "time needed = " << d.count() << std::endl;
+
 	return column;
 }
 
@@ -77,21 +86,21 @@ WIKIPEDIA: Negamax
 
 int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, int* column)
 {
-	if (depth == 0 || game->isFinished())
+	bool finished = game->isFinished();
+	if (depth == 0 || finished)
+	{
+		if (finished)
+		{
+			return player * 10000;
+		}
 		return player * heuristic(game);
+	}
 
 	int best = -INT_MAX;
 	for (int x = 0; x < m_game_cpy->getSize().x; ++x)
 	{
 		if (game->getBoard()[x][0] != P_NONE)
 		{
-			/*best = -INT_MAX;
-			if (column != nullptr)
-			{
-				if(x == m_game_cpy->getSize().x)
-
-				*column = ;
-			}*/
 			continue;
 		}
 
@@ -112,6 +121,101 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 
 int ai::heuristic(ConnectFour * game)
 {
-	return rand() % 100;
+	int connected;
+	PlayerInfo current = P_NONE;
+	bool isFinished = false;
+
+	//VERTICAL
+	for (int x = 0; x < game->getSize().x; ++x)
+	{
+		connected = 0;
+		for (int y = game->getSize().y - 1; y >= 0; --y)
+		{
+			if (game->getBoard()[x][y] != P_NONE)
+			{
+				if (game->getBoard()[x][y] == current)
+					connected++;
+				else
+				{
+					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
+					connected = 1;
+				}
+			}
+			else
+				y = -1; //break condition
+		}
+
+		if (connected == 4 || connected == -4)
+		{
+			isFinished = true;
+			break;
+		}
+	}
+
+	//HORIZONTAL
+	for (int y = game->getSize().y - 1; y >= 0; --y)
+	{
+		connected = 0;
+		current = P_NONE;
+		for (int x = 0; x < game->getSize().x; ++x)
+		{
+			if (game->getBoard[x][y] != P_NONE)
+			{
+				if (game->getBoard[x][y] == current)
+					connected++;
+				else
+				{
+					current = static_cast<PlayerInfo>(game->getBoard[x][y]);
+					connected = 1;
+				}
+			}
+			else {
+				current = P_NONE;
+				connected = 1;
+			}
+
+			if (connected == 4 || connected == -4)
+			{
+				isFinished = GS_END;
+				break;
+			}
+		}
+	}
+
+	//DIAGONAL
+	for (int i = 0; i < 12; ++i)
+	{
+		int connected = 0;
+		PlayerInfo current = P_NONE;
+		for (int j = 0; j < 6; ++j)
+		{
+			if (winning_fields[i][j] == 99)
+				break;
+
+			int x = (winning_fields[i][j] / 10) % 10;
+			int y = winning_fields[i][j] % 10;
+
+			if (game->getBoard[x][y] != P_NONE)
+			{
+				if (game->getBoard()[x][y] == current)
+					connected++;
+				else
+				{
+					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
+					connected = 1;
+				}
+			}
+			else {
+				current = P_NONE;
+				connected = 1;
+			}
+
+			if (connected == 4 || connected == -4)
+			{
+				isFinished = true;
+				break;
+			}
+		}
+	}
 }
 
