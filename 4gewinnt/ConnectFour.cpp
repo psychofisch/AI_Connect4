@@ -59,6 +59,7 @@ ConnectFour::ConnectFour(ConnectFour & other)
 void ConnectFour::run()
 {
 	m_gamestate = GS_RUNNING;
+	calculateHeuristic = false;
 
 	sf::Event eve;
 
@@ -134,6 +135,9 @@ void ConnectFour::run()
 					moveTo(Direction::Right);
 					break;
 					*/
+				case sf::Keyboard::H:
+					calculateHeuristic = true;
+					break;
 				case sf::Keyboard::R:
 					removeLastStone();
 					break;
@@ -238,7 +242,7 @@ bool ConnectFour::isFinished()
 	}
 
 	//HORIZONTAL
-	for (int y = m_size.y - 1; y >= 0; --y)
+	for (int y = m_size.y - 1; y >= 0 && !isFinished; --y)
 	{
 		connected = 0;
 		current = P_NONE;
@@ -268,7 +272,7 @@ bool ConnectFour::isFinished()
 	}
 
 	//DIAGONAL
-	for (int i = 0; i < 12; ++i)
+	for (int i = 0; i < 12 && !isFinished; ++i)
 	{
 		int connected = 0;
 		PlayerInfo current = P_NONE;
@@ -307,8 +311,6 @@ bool ConnectFour::isFinished()
 	{
 		m_gamestate = GS_END;
 	}
-	//else
-	//	m_playerInfo = P_2;
 
 	return isFinished;
 }

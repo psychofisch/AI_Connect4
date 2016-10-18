@@ -36,6 +36,7 @@ public:
 	bool removeLastStone();
 	sf::Vector2i getSize();
 	void setWindow(sf::RenderWindow* wndw);
+	bool calculateHeuristic;
 private:
 	sf::Vector2i m_size;
 	int** m_board;
