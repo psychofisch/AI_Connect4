@@ -104,7 +104,8 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		{
 			return -player * 10000;
 		}
-		return -player * heuristic(game);
+		int h = heuristic(game);
+		return -player * h;
 	}
 
 	int best = -INT_MAX;
@@ -136,101 +137,72 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 
 int ai::heuristic(ConnectFour * game)
 {
-	int connected = 0;
-	PlayerInfo current = P_NONE;
-	bool won = false;
-	int result;
+	int score = 0;
+
+	//game->printBoard();
 
 	//VERTICAL
-	for (int x = 0; x < game->getSize().x; ++x)
+	/*for (int x = 0; x < game->getSize().x; ++x)
 	{
-		int connected_v = 0;
-		for (int y = game->getSize().y - 1; y >= 0; --y)
-		{
-			if (game->getBoard()[x][y] != P_NONE)
-			{
-				if (game->getBoard()[x][y] == current)
-					connected_v++;
-				else
-				{
-					/*if (y < 3 && connected_v < 2)
-					{
-						connected_v = 0;
-						break;
-					}*/
+		int score_v = 0;
 
-					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
-					connected_v = 1;
-				}
-			}
-			else
-			{
+		if (x > 3 && x < game->getSize().x - 3)
+			score_v++;
+
+		for (int y = 0; y <= game->getSize().y; ++y)
+		{
+			if (game->getBoard()[x][y] == P_2)
 				break;
-				//y = -1; //break condition
+			else if (game->getBoard()[x][y] == P_1)
+			{
+				int score_v_i = 0;
+				if (game->getBoard()[x][y + 1] == P_2 && game->getBoard()[x][y + 2] == P_2 && game->getBoard()[x][y + 3] == P_2)
+				{
+					score_v = 4;
+					break;
+				}
+
+				for (int yn = 0; yn <= std::min(4, game->getSize().y - y); ++yn)
+				{
+					if (game->getBoard()[x][y + yn] == P_1)
+						score_v_i++;
+				}
+				break;
 			}
 		}
-		
-		if (connected_v >= 4)
-		{
-			won = true;
-			break;
-		}
-		
-		if (connected_v > connected)
-			connected = connected_v;
-	}
 
-	/*
+		score += score_v;
+	}*/
+
+	
 	//HORIZONTAL
-	for (int y = game->getSize().y - 1 && !won; y >= 0; --y)
+	for (int y = game->getSize().y - 1; y >= 0; --y)
 	{
-		int connected_h = 0;
-		for (int x = 0; x < game->getSize().x - 4; ++x)
+		int score_h = 0;
+		int connected = 0;
+		bool gap = false;
+		PlayerInfo last = P_NONE;
+		for (int x = 0; x < game->getSize().x; ++x)
 		{
-			bool mixed = false;
-			current = P_NONE;
-			//NEW
-			for (int xn = 0; xn <= 4; ++xn)
+			if (game->getBoard()[x][y] == P_NONE)
 			{
-				if (current != P_NONE)
-				{
-					if (current == game->getBoard()[x + xn][y])
-					{
-
-					}
-					else
-					{
-						mixed = true;
-						break;
-					}
-				}
-			}
-
-			//OLD
-			if (game->getBoard()[x][y] != P_NONE)
-			{
-				if (game->getBoard()[x][y] == current)
-					connected_h++;
+				if (last == P_1)
+					gap = true;
 				else
-				{
-					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
-					connected_h = 1;
-				}
+					gap = false;
+				continue;
 			}
-			else {
-				current = P_NONE;
-				connected_h = 1;
-			}
-
-			if (connected_h >= 4)
+			else if (game->getBoard()[x][y] == P_1)
 			{
-				won = true;
-				break;
+				last = P_1;
+				connected++;
 			}
-			
-			if (connected_h > connected)
-				connected = connected_h;
+			else if (game->getBoard()[x][y] == P_2)
+			{
+				last = P_2;
+			}
 		}
+		score_h = connected;
 	}
 	/*
 	//DIAGONAL
@@ -273,15 +245,6 @@ int ai::heuristic(ConnectFour * game)
 	}*/
 
 	//no need for "if (won)" -> this case gets handled in the negamax function
-	if (connected == 3)
-		result = 100;
-	else if (connected == 2)
-		result = 50;
-	else if (connected == 1)
-		result = 10;
-	else
-		result = 0;
-
-	return result;
+	return score;
 }
 
