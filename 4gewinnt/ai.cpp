@@ -1,6 +1,6 @@
 ﻿#include "ai.h"
 
-ai::ai(ConnectFour* gm, PlayerInfo rs)
+ai::ai(ConnectFour* gm, PlayerInfo rs, bool debug)
 	:m_thinking(false),
 	m_alive(true)
 {
@@ -8,17 +8,18 @@ ai::ai(ConnectFour* gm, PlayerInfo rs)
 	m_game_cpy = new ConnectFour(*gm);
 	//m_board = m_game_cpy.getBoard();
 	m_playerNo = rs;
+	m_debug = debug;
 }
 
 
 ai::~ai()
 {
+	delete m_game_cpy;
 }
 
 void ai::run()
 {
 	srand(123);
-	sf::Event eve;
 
 	while (m_alive)
 	{
@@ -29,7 +30,7 @@ void ai::run()
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		if (m_game->currentPlayer() == m_playerNo)
+		if (!m_debug && m_game->currentPlayer() == m_playerNo)
 		{
 			m_game_cpy = new ConnectFour(*m_game);
 			int move = think();
@@ -53,7 +54,7 @@ int ai::think()
 
 	m_isFinished = false;
 	int column = 0;
-	int pos = negamax(m_game_cpy, 6, -INT_MAX, INT_MAX, m_playerNo, &column);
+	int pos = negamax(m_game_cpy, 3, -INT_MAX, INT_MAX, m_playerNo, &column);
 	m_isFinished = true;
 	std::cout << m_playerNo << ": col " << column << " | heur " << pos << std::endl;
 
@@ -99,9 +100,9 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 	{
 		if (finished)
 		{
-			return player * 10000;
+			return -player * 10000;
 		}
-		return player * heuristic(game);
+		return -player * heuristic(game);
 	}
 
 	int best = -INT_MAX;
@@ -115,6 +116,7 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		game->addStone(x, static_cast<PlayerInfo>(player));
 		int v = -negamax(game, depth - 1, -beta, -alpha, -player, nullptr);
 		game->removeLastStone();
+		m_game_cpy->printBoard();
 		//best = std::max(best, v);
 		if (v > best)
 		{
@@ -122,6 +124,13 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 			if(column != nullptr)
 				*column = x;
 		}
+
+		alpha = std::max(alpha, v);
+		if (alpha >= beta)
+			break;
+	/*α: = max(α, v)
+		11         if α ≥ β
+		12             */
 	}
 
 	return best;
@@ -132,6 +141,7 @@ int ai::heuristic(ConnectFour * game)
 	int connected = 0;
 	PlayerInfo current = P_NONE;
 	bool won = false;
+	int result;
 
 	//VERTICAL
 	for (int x = 0; x < game->getSize().x; ++x)
@@ -145,13 +155,21 @@ int ai::heuristic(ConnectFour * game)
 					connected_v++;
 				else
 				{
+					if (y < 3 && connected_v < 2)
+					{
+						connected_v = 0;
+						break;
+					}
+
 					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
 					connected_v = 1;
 				}
 			}
 			else
+			{
 				break;
 				//y = -1; //break condition
+			}
 		}
 		
 		if (connected_v >= 4)
@@ -164,6 +182,7 @@ int ai::heuristic(ConnectFour * game)
 			connected = connected_v;
 	}
 
+	/*
 	//HORIZONTAL
 	for (int y = game->getSize().y - 1 && !won; y >= 0; --y)
 	{
@@ -234,17 +253,17 @@ int ai::heuristic(ConnectFour * game)
 			if (connected_d > connected)
 				connected = connected_d;
 		}
-	}
-
-	int result;
+	}*/
 
 	//no need for "if (won)" -> this case gets handled in the negamax function
 	if (connected == 3)
 		result = 100;
 	else if (connected == 2)
 		result = 50;
-	else if (connected <= 1)
+	else if (connected == 1)
 		result = 10;
+	else
+		result = 0;
 
 	return result;
 }

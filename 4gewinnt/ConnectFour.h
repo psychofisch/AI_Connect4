@@ -37,6 +37,8 @@ public:
 	sf::Vector2i getSize();
 	void setWindow(sf::RenderWindow* wndw);
 	bool calculateHeuristic;
+	void printBoard();
+	bool compareBoards(ConnectFour& other);
 private:
 	sf::Vector2i m_size;
 	int** m_board;

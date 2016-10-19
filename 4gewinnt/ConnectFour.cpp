@@ -365,3 +365,36 @@ void ConnectFour::setWindow(sf::RenderWindow * wndw)
 {
 	m_window = wndw;
 }
+
+void ConnectFour::printBoard()
+{
+	for (int y = 0; y < m_size.y; ++y)
+	{
+		for (int x = 0; x < m_size.x; ++x)
+		{
+			char tmp = '0';
+			if (m_board[x][y] == P_1)
+				tmp = '1';
+			else if (m_board[x][y] == P_2)
+				tmp = '2';
+			std::cout << "|" << tmp;
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+bool ConnectFour::compareBoards(ConnectFour & other)
+{
+	if (m_size != other.getSize())
+		return false;
+
+	for (int x = 0; x < m_size.x; ++x)
+	{
+		for (int y = 0; y < m_size.y; ++y)
+			if (m_board[x][y] != other.getBoard()[x][y])
+				return false;
+	}
+
+	return true;
+}

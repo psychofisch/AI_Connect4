@@ -30,7 +30,7 @@ int main()
 		game.setWindow(&window);
 
 		std::cout << "give birth to npc...\n";
-		ai npc(&game, P_2);
+		ai npc(&game, P_2, false);
 		//ai npc2(&game, P_2);
 
 		std::cout << "starting artificial intelligence...\n";
@@ -46,7 +46,7 @@ int main()
 		//npc2.kill();
 
 		std::cout << "waiting for ai to die...\n";
-		ai_thread.join();
+		//ai_thread.join();
 		//ai_thread2.join();
 	}
 
