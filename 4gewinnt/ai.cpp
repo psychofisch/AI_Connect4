@@ -54,9 +54,10 @@ int ai::think()
 
 	m_isFinished = false;
 	int column = 0;
-	int pos = negamax(m_game_cpy, 3, -INT_MAX, INT_MAX, m_playerNo, &column);
+	int pos = negamax(m_game_cpy, 4, -INT_MAX, INT_MAX, m_playerNo, &column);
 	m_isFinished = true;
 	std::cout << m_playerNo << ": col " << column << " | heur " << pos << std::endl;
+	m_game_cpy->printBoard();
 
 	std::chrono::high_resolution_clock::time_point stop = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float> d = std::chrono::duration_cast<std::chrono::duration<float>>(stop - start);
@@ -98,6 +99,7 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 	bool finished = game->isFinished();
 	if (depth == 0 || finished)
 	{
+		//m_game_cpy->printBoard();
 		if (finished)
 		{
 			return -player * 10000;
@@ -116,7 +118,6 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		game->addStone(x, static_cast<PlayerInfo>(player));
 		int v = -negamax(game, depth - 1, -beta, -alpha, -player, nullptr);
 		game->removeLastStone();
-		m_game_cpy->printBoard();
 		//best = std::max(best, v);
 		if (v > best)
 		{
@@ -128,9 +129,6 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		alpha = std::max(alpha, v);
 		if (alpha >= beta)
 			break;
-	/*α: = max(α, v)
-		11         if α ≥ β
-		12             */
 	}
 
 	return best;
@@ -155,11 +153,11 @@ int ai::heuristic(ConnectFour * game)
 					connected_v++;
 				else
 				{
-					if (y < 3 && connected_v < 2)
+					/*if (y < 3 && connected_v < 2)
 					{
 						connected_v = 0;
 						break;
-					}
+					}*/
 
 					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
 					connected_v = 1;
@@ -187,9 +185,28 @@ int ai::heuristic(ConnectFour * game)
 	for (int y = game->getSize().y - 1 && !won; y >= 0; --y)
 	{
 		int connected_h = 0;
-		current = P_NONE;
-		for (int x = 0; x < game->getSize().x; ++x)
+		for (int x = 0; x < game->getSize().x - 4; ++x)
 		{
+			bool mixed = false;
+			current = P_NONE;
+			//NEW
+			for (int xn = 0; xn <= 4; ++xn)
+			{
+				if (current != P_NONE)
+				{
+					if (current == game->getBoard()[x + xn][y])
+					{
+
+					}
+					else
+					{
+						mixed = true;
+						break;
+					}
+				}
+			}
+
+			//OLD
 			if (game->getBoard()[x][y] != P_NONE)
 			{
 				if (game->getBoard()[x][y] == current)
@@ -215,7 +232,7 @@ int ai::heuristic(ConnectFour * game)
 				connected = connected_h;
 		}
 	}
-
+	/*
 	//DIAGONAL
 	for (int i = 0; i < 12 && !won; ++i)
 	{
