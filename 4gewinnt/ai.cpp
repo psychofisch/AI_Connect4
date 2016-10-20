@@ -26,6 +26,7 @@ void ai::run()
 		if (m_game->calculateHeuristic == true)
 		{
 			std::cout << heuristic(m_game) << std::endl;
+			m_game->printBoard();
 			m_game->calculateHeuristic = false;
 		}
 
@@ -54,7 +55,7 @@ int ai::think()
 
 	m_isFinished = false;
 	int column = 0;
-	int pos = negamax(m_game_cpy, 4, -INT_MAX, INT_MAX, m_playerNo, &column);
+	int pos = negamax(m_game_cpy, 7, -INT_MAX, INT_MAX, m_playerNo, &column);
 	m_isFinished = true;
 	std::cout << m_playerNo << ": col " << column << " | heur " << pos << std::endl;
 	m_game_cpy->printBoard();
@@ -102,7 +103,7 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		//m_game_cpy->printBoard();
 		if (finished)
 		{
-			return -player * 10000;
+			return -player * 1000;
 		}
 		int h = heuristic(game);
 		return -player * h;
@@ -142,39 +143,34 @@ int ai::heuristic(ConnectFour * game)
 	//game->printBoard();
 
 	//VERTICAL
-	/*for (int x = 0; x < game->getSize().x; ++x)
+	for (int x = 0; x < game->getSize().x; ++x)
 	{
 		int score_v = 0;
 
-		if (x > 3 && x < game->getSize().x - 3)
-			score_v++;
+		/*if (x > 2 && x < game->getSize().x - 2)
+			score_v++;*/
 
-		for (int y = 0; y <= game->getSize().y; ++y)
+		for (int y = 0; y <= game->getSize().y - 3; ++y)
 		{
-			if (game->getBoard()[x][y] == P_2)
-				break;
-			else if (game->getBoard()[x][y] == P_1)
+			int score_v_i = 0;
+			for (int yn = 0; yn <= 4; ++yn)
 			{
-				int score_v_i = 0;
-				if (game->getBoard()[x][y + 1] == P_2 && game->getBoard()[x][y + 2] == P_2 && game->getBoard()[x][y + 3] == P_2)
+				if (game->getBoard()[x][y + yn] == P_1)
+					score_v_i++;
+				//else if (game->getBoard()[x][y + yn] == P_NONE)
+				//	score_v_i++;
+				else if (game->getBoard()[x][y + yn] == P_2)
 				{
-					score_v = 4;
+					score_v_i = 0;
 					break;
 				}
-
-				for (int yn = 0; yn <= std::min(4, game->getSize().y - y); ++yn)
-				{
-					if (game->getBoard()[x][y + yn] == P_1)
-						score_v_i++;
-				}
-				break;
 			}
+			score_v += score_v_i;
 		}
 
 		score += score_v;
-	}*/
+	}
 
-	
 	//HORIZONTAL
 	for (int y = game->getSize().y - 1; y >= 0; --y)
 	{
@@ -203,46 +199,40 @@ int ai::heuristic(ConnectFour * game)
 			}
 		}
 		score_h = connected;
+		score += score_h;
 	}
-	/*
+	
 	//DIAGONAL
-	for (int i = 0; i < 12 && !won; ++i)
+	for (int win_x = 0; win_x < sizeof(winning_fields) / sizeof(winning_fields[0]); ++win_x)
 	{
-		int connected_d = 0;
-		PlayerInfo current = P_NONE;
-		for (int j = 0; j < 6; ++j)
+		int score_d = 0;
+
+		for (int yn = 0; yn < 4; ++yn)
 		{
-			if (winning_fields[i][j] == 99)
-				break;
-
-			int x = (winning_fields[i][j] / 10) % 10;
-			int y = winning_fields[i][j] % 10;
-
-			if (game->getBoard()[x][y] != P_NONE)
+			int score_d_i = 0;
+			for (int win_y = yn; win_y < yn + 4; ++win_y)
 			{
-				if (game->getBoard()[x][y] == current)
-					connected_d++;
-				else
+				if (winning_fields[win_x][win_y] == 99)
+					break;
+
+				int x = (winning_fields[win_x][win_y] / 10) % 10;
+				int y = winning_fields[win_x][win_y] % 10;
+
+				if (game->getBoard()[x][y] == P_1)
+					score_d_i++;
+				else if (game->getBoard()[x][y] == P_2)
 				{
-					current = static_cast<PlayerInfo>(game->getBoard()[x][y]);
-					connected_d = 1;
+					score_d_i = 0;
+					break;
 				}
-			}
-			else {
-				current = P_NONE;
-				connected_d = 1;
-			}
 
-			if (connected_d == 4)
-			{
-				won = true;
-				break;
+				//std::cout << x << ":" << y << std::endl;
 			}
-
-			if (connected_d > connected)
-				connected = connected_d;
+			score_d = score_d_i;
 		}
-	}*/
+
+		score += score_d;
+	}
 
 	//no need for "if (won)" -> this case gets handled in the negamax function
 	return score;

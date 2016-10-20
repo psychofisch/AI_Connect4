@@ -31,7 +31,7 @@ int main()
 
 		std::cout << "give birth to npc...\n";
 		ai npc(&game, P_2, false);
-		//ai npc2(&game, P_2);
+		//ai npc2(&game, P_1, false);
 
 		std::cout << "starting artificial intelligence...\n";
 		std::thread ai_thread(&ai::run, &npc);

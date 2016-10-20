@@ -86,7 +86,7 @@ void ConnectFour::run()
 			{
 				if (eve.mouseButton.button == sf::Mouse::Left)
 				{
-					if (m_gamestate != GS_RUNNING || m_playerInfo != P_1)
+					if (m_gamestate != GS_RUNNING /*|| m_playerInfo != P_1*/)
 						break;
 					//std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
 					/*FieldState player = P_NONE;
