@@ -26,6 +26,9 @@ private:
 	PlayerInfo m_playerNo;
 	bool m_thinking;
 	int negamax(ConnectFour* game, int depth, int alpha, int beta, int player, int* column);
-	int heuristic(ConnectFour* game);
+	int heuristic(ConnectFour* game, int player);
+	int heuristic_v(ConnectFour* game, int player);
+	int heuristic_h(ConnectFour* game, int player);
+	int heuristic_d(ConnectFour* game, int player);
 	bool m_debug;
 };

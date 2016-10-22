@@ -381,7 +381,6 @@ void ConnectFour::printBoard()
 		}
 		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 }
 
 bool ConnectFour::compareBoards(ConnectFour & other)
