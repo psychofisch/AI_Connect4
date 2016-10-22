@@ -39,6 +39,7 @@ public:
 	bool calculateHeuristic;
 	void printBoard();
 	bool compareBoards(ConnectFour& other);
+	void setHuman(PlayerInfo human);
 private:
 	sf::Vector2i m_size;
 	int** m_board;
@@ -48,5 +49,6 @@ private:
 	sf::CircleShape m_circle;
 	GameState m_gamestate;
 	PlayerInfo m_playerInfo;
+	PlayerInfo m_humanPlayer;
 	std::stack<int> m_lastMoves;
 };

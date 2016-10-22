@@ -11,7 +11,7 @@
 class ai
 {
 public:
-	ai(ConnectFour* gm, PlayerInfo rs, bool debug = false);
+	ai(ConnectFour* gm, PlayerInfo rs, int depth, bool debug = false);
 	~ai();
 	void run();
 	int think();
@@ -25,6 +25,7 @@ private:
 	bool m_isFinished;
 	PlayerInfo m_playerNo;
 	bool m_thinking;
+	int m_depth;
 	int negamax(ConnectFour* game, int depth, int alpha, int beta, int player, int* column);
 	int heuristic(ConnectFour* game, int player);
 	int heuristic_v(ConnectFour* game, int player);

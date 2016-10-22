@@ -1,12 +1,12 @@
 ﻿#include "ai.h"
 
-ai::ai(ConnectFour* gm, PlayerInfo rs, bool debug)
+ai::ai(ConnectFour* gm, PlayerInfo rs, int depth, bool debug)
 	:m_thinking(false),
-	m_alive(true)
+	m_alive(true),
+	m_depth(depth)
 {
 	m_game = gm;
 	m_game_cpy = new ConnectFour(*gm);
-	//m_board = m_game_cpy.getBoard();
 	m_playerNo = rs;
 	m_debug = debug;
 }
@@ -19,8 +19,6 @@ ai::~ai()
 
 void ai::run()
 {
-	srand(123);
-
 	while (m_alive)
 	{
 		if (m_game->calculateHeuristic == true)
@@ -55,7 +53,7 @@ int ai::think()
 
 	m_isFinished = false;
 	int column = 0;
-	int score = negamax(m_game_cpy, 1, -INT_MAX, INT_MAX, m_playerNo, &column);
+	int score = negamax(m_game_cpy, 8, -INT_MAX, INT_MAX, m_playerNo, &column);
 
 	/*int score = 0;
 	int* columns = new int[m_game->getSize().x];

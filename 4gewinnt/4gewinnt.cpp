@@ -8,10 +8,14 @@
 #include "ConnectFour.h"
 #include "ai.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-	while (1)
-	{
+	int ai_depth = 5;
+	int mode = 0;
+
+
+	//while (1)
+	//{
 		sf::VideoMode vm;
 		vm.width = 720;
 		vm.height = 720;
@@ -29,26 +33,55 @@ int main()
 		ConnectFour game;
 		game.setWindow(&window);
 
-		std::cout << "give birth to npc...\n";
-		ai npc(&game, P_2, false);
-		//ai npc2(&game, P_2, false);
+		ai* npc = nullptr;
+		std::thread* ai_thread = nullptr;
+		if (mode == 0 || mode == 2)
+		{
+			std::cout << "give birth to npc one...\n";
+			npc = new ai(&game, P_2, ai_depth);
+			std::cout << "starting first artificial intelligence...\n";
+			ai_thread = new std::thread(&ai::run, npc);
+			game.setHuman(P_1);
+		}
 
-		std::cout << "starting artificial intelligence...\n";
-		std::thread ai_thread(&ai::run, &npc);
-		//std::thread ai_thread2(&ai::run, &npc2);
+		ai* npc2 = nullptr;
+		std::thread* ai_thread2 = nullptr;
+		if (mode == 1 || mode == 2)
+		{
+			std::cout << "give birth to npc two...\n";
+			npc2 = new ai(&game, P_1, ai_depth);
+			std::cout << "starting second artificial intelligence...\n";
+			ai_thread2 = new std::thread(&ai::run, npc2);
+			game.setHuman(P_2);
+		}
+
+		if (mode == 2)
+			game.setHuman(P_NONE);
 
 		std::cout << "starting game!\n";
 		game.run();
 		std::cout << "game ended...\n";
 
 		std::cout << "killing ai...\n";
-		npc.kill();
-		//npc2.kill();
+		if (npc != nullptr)
+		{
+			npc->kill();
+			ai_thread->join();
+		}
 
-		std::cout << "waiting for ai to die...\n";
-		ai_thread.join();
-		//ai_thread2.join();
-	}
+		if (npc2 != nullptr)
+		{
+			npc2->kill();
+			ai_thread2->join();
+		}
+
+		std::cout << "cleaning up...\n";
+
+		delete npc;
+		delete npc2;
+		delete ai_thread;
+		delete ai_thread2;
+	//}
 
 	std::cout << "bye.\n";
 	return 0;

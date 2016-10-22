@@ -6,7 +6,8 @@ ConnectFour::ConnectFour()
 	m_size(7, 6),
 	m_currentSelection(0),
 	m_gamestate(GS_INIT),
-	m_playerInfo(P_1)
+	m_playerInfo(P_1),
+	m_humanPlayer(P_1)
 {
 	m_board = new int*[m_size.x];
 
@@ -86,7 +87,7 @@ void ConnectFour::run()
 			{
 				if (eve.mouseButton.button == sf::Mouse::Left)
 				{
-					if (m_gamestate != GS_RUNNING /*|| m_playerInfo != P_1*/)
+					if (m_gamestate != GS_RUNNING || m_playerInfo != m_humanPlayer)
 						break;
 					//std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
 					/*FieldState player = P_NONE;
@@ -194,6 +195,7 @@ void ConnectFour::run()
 bool ConnectFour::addStone(int pos, PlayerInfo player)
 {
 	bool done = false;
+
 	for (int y = m_size.y - 1; y >= 0; --y)
 	{
 		if (m_board[pos][y] == P_NONE)
@@ -396,4 +398,9 @@ bool ConnectFour::compareBoards(ConnectFour & other)
 	}
 
 	return true;
+}
+
+void ConnectFour::setHuman(PlayerInfo human)
+{
+	m_humanPlayer = human;
 }
