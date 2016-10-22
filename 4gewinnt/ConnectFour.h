@@ -40,6 +40,7 @@ public:
 	void printBoard();
 	bool compareBoards(ConnectFour& other);
 	void setHuman(PlayerInfo human);
+	bool checkTie();
 private:
 	sf::Vector2i m_size;
 	int** m_board;

@@ -161,10 +161,12 @@ void ConnectFour::run()
 		//Render
 		sf::CircleShape arrow(36, 3);
 		arrow.setRotation(180);
-		if(m_playerInfo == P_1)
+		if (m_playerInfo == P_1)
 			arrow.setFillColor(Color_1);
-		else if(m_playerInfo == P_2)
+		else if (m_playerInfo == P_2)
 			arrow.setFillColor(Color_2);
+		else
+			arrow.setFillColor(sf::Color::White);
 		arrow.setPosition(sf::Vector2f((720.0f / 7) + floor((mousePos.x / 720) * 7) * (720.0f / 7), 100));
 		m_window->draw(arrow);
 
@@ -215,6 +217,7 @@ bool ConnectFour::isFinished()
 	int connected;
 	PlayerInfo current = P_NONE;
 	bool isFinished = false;
+	int full_col_cnt = 0;
 
 	//VERTICAL
 	for (int x = 0; x < m_size.x; ++x)
@@ -250,6 +253,9 @@ bool ConnectFour::isFinished()
 		current = P_NONE;
 		for (int x = 0; x < m_size.x; ++x)
 		{
+			if (y == 0 && m_board[x][y] != P_NONE)
+				full_col_cnt++;
+
 			if (m_board[x][y] != P_NONE)
 			{
 				if (m_board[x][y] == current)
@@ -308,6 +314,9 @@ bool ConnectFour::isFinished()
 			}
 		}
 	}
+	
+	//if (isFinished == false && full_col_cnt == m_size.y)
+	//	m_playerInfo = P_NONE;
 
 	if (isFinished)
 	{
@@ -403,4 +412,23 @@ bool ConnectFour::compareBoards(ConnectFour & other)
 void ConnectFour::setHuman(PlayerInfo human)
 {
 	m_humanPlayer = human;
+}
+
+bool ConnectFour::checkTie()
+{
+	int full_cols = 0;
+	for (int x = 0; x < m_size.x; ++x)
+	{
+		if (m_board[x][0] != P_NONE)
+			full_cols++;
+	}
+	
+	if (full_cols == m_size.x)
+	{
+		m_gamestate = GS_END;
+		m_playerInfo = P_NONE;
+		return true;
+	}
+	else
+		return false;
 }

@@ -1,14 +1,14 @@
 ﻿#include "ai.h"
 
-ai::ai(ConnectFour* gm, PlayerInfo rs, int depth, bool debug)
-	:m_thinking(false),
-	m_alive(true),
-	m_depth(depth)
+ai::ai(ConnectFour* gm, PlayerInfo rs, int depth, bool alphabeta, bool debug)
+	:m_alive(true),
+	m_depth(depth),
+	m_game(gm),
+	m_playerNo(rs),
+	m_debug(debug),
+	m_alphabeta(alphabeta),
+	m_game_cpy(new ConnectFour(*gm))
 {
-	m_game = gm;
-	m_game_cpy = new ConnectFour(*gm);
-	m_playerNo = rs;
-	m_debug = debug;
 }
 
 
@@ -28,7 +28,7 @@ void ai::run()
 			m_game->calculateHeuristic = false;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		if (!m_debug && m_game->currentPlayer() == m_playerNo)
 		{
 			m_game_cpy = new ConnectFour(*m_game);
@@ -36,14 +36,18 @@ void ai::run()
 			if (m_game_cpy->addStone(move, m_playerNo))
 			{
 				m_game->addStone(move, m_playerNo);
-				if (m_game->isFinished())
+				if (m_game->isFinished() || m_game->checkTie())
 				{
 					kill();//I WON SO I CAN DIE IN PEACE! *harakiri*
 					break;
 				}
+
 				m_game->nextPlayer();
 			}
 		}
+
+		if (m_game->currentPlayer() == P_NONE)
+			kill();
 	}
 }
 
@@ -53,26 +57,17 @@ int ai::think()
 
 	m_isFinished = false;
 	int column = 0;
-	int score = negamax(m_game_cpy, 8, -INT_MAX, INT_MAX, m_playerNo, &column);
-
-	/*int score = 0;
-	int* columns = new int[m_game->getSize().x];
-	int* best = new int[m_game->getSize().x];
-	
-	for (int i = 0; i < m_game->getSize().x; ++i)
-	{
-		columns[i] = negamax(m_game_cpy, 3, -INT_MAX, INT_MAX, m_playerNo, nullptr);
-	}*/
+	int score = negamax(m_game_cpy, m_depth, -INT_MAX, INT_MAX, m_playerNo, &column);
 
 	m_isFinished = true;
 	//std::cout << std::endl;
 	//m_game_cpy->printBoard();
-	std::cout << m_playerNo << ": col " << column << " | score " << score << std::endl;
+	//std::cout << m_playerNo << ": col " << column << " | score " << score << std::endl;
 
 	std::chrono::high_resolution_clock::time_point stop = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float> d = std::chrono::duration_cast<std::chrono::duration<float>>(stop - start);
 
-	std::cout << "time needed = " << d.count() << std::endl;
+	std::cout << "round_time," << d.count() << std::endl;
 
 	//delete[] columns;
 	//delete[] best;
@@ -130,12 +125,22 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		return h;
 	}
 
+	int last_free_col = 0;
+	int full_col_cnt = 0;
 	int best = -INT_MAX;
 	for (int x = 0; x < m_game_cpy->getSize().x; ++x)
 	{
 		if (game->getBoard()[x][0] != P_NONE)
 		{
+			full_col_cnt++;
 			continue;
+		}
+
+		last_free_col = x;
+		if (column != nullptr && full_col_cnt == game->getSize().y)
+		{
+			*column = x;
+			break;
 		}
 
 		game->addStone(x, static_cast<PlayerInfo>(player));
@@ -150,7 +155,7 @@ int ai::negamax(ConnectFour * game, int depth, int alpha, int beta, int player, 
 		}
 
 		alpha = std::max(alpha, v);
-		if (alpha >= beta)
+		if (m_alphabeta && alpha >= beta)
 			break;
 	}
 
