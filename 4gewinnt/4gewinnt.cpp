@@ -50,9 +50,10 @@ int main(int argc, char* argv[])
 			alphabeta = true;
 			std::cout << "alpha-beta-pruning activated" << std::endl;
 		}
-		else if (strcmp(argv[i], "--debug") == 0)
+		else if (strcmp(argv[i], "--sv_cheats") == 0)
 		{
-			debug = true;
+			if(argv[++i][0] == '1')
+				debug = true;
 			std::cout << "DEBUG for AI activated" << std::endl;
 		}
 	}
@@ -75,6 +76,8 @@ int main(int argc, char* argv[])
 		std::cout << "creating game...\n";
 		ConnectFour game;
 		game.setWindow(&window);
+		if (debug)
+			game.setDebug();
 
 		ai* npc = nullptr;
 		std::thread* ai_thread = nullptr;

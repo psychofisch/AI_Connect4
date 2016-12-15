@@ -29,7 +29,7 @@ void ai::run()
 		}
 
 		//std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		if (!m_debug && m_game->currentPlayer() == m_playerNo)
+		if (m_game->currentPlayer() == m_playerNo)
 		{
 			m_game_cpy = new ConnectFour(*m_game);
 			int move = think();

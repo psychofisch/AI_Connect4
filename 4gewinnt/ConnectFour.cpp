@@ -7,7 +7,8 @@ ConnectFour::ConnectFour()
 	m_currentSelection(0),
 	m_gamestate(GS_INIT),
 	m_playerInfo(P_1),
-	m_humanPlayer(P_1)
+	m_humanPlayer(P_1),
+	m_debug(false)
 {
 	m_board = new int*[m_size.x];
 
@@ -87,31 +88,13 @@ void ConnectFour::run()
 			{
 				if (eve.mouseButton.button == sf::Mouse::Left)
 				{
-					if (m_gamestate != GS_RUNNING || m_playerInfo != m_humanPlayer)
+					if (!m_debug && (m_gamestate != GS_RUNNING || m_playerInfo != m_humanPlayer))
 						break;
-					//std::cout << mousePos.x << ":" << mousePos.y << " - " << floor((mousePos.x/720)*7) << std::endl;
-					/*FieldState player = P_NONE;
-					if (m_roundstate == P_1)
-						player = FIELD_1;
-					else
-						player = FIELD_2;
-
-					if (player == P_NONE)
-						break;*/
-
 					if (addStone(currentColumn, m_playerInfo))
 					{
 						if (!isFinished())
 							m_playerInfo = static_cast<PlayerInfo>(-m_playerInfo);
 					}
-					/*if (added)
-						if (m_gamestate == GS_END)
-							break;
-
-					if (added && m_roundstate == P_1)
-						m_roundstate = P_2;
-					else
-						m_roundstate = P_1;*/
 				}
 				break;
 			}
@@ -120,32 +103,14 @@ void ConnectFour::run()
 			{
 				switch (eve.key.code)
 				{
-				/*case sf::Keyboard::W:
-					moveTo(Direction::Up);
-					break;
-
-				case sf::Keyboard::A:
-					moveTo(Direction::Left);
-					break;
-
-				case sf::Keyboard::S:
-					moveTo(Direction::Down);
-					break;
-
-				case sf::Keyboard::D:
-					moveTo(Direction::Right);
-					break;
-					*/
 				case sf::Keyboard::H:
-					calculateHeuristic = true;
+					if(m_debug)
+						calculateHeuristic = true;
 					break;
 				case sf::Keyboard::R:
-					removeLastStone();
+					if (m_debug)
+						removeLastStone();
 					break;
-				case sf::Keyboard::P:
-					//m_board->addElement(rand() % m_board->getSize(), rand() % m_board->getSize());
-					break;
-
 				case sf::Keyboard::Escape:
 					quit = true;
 					break;
@@ -172,7 +137,6 @@ void ConnectFour::run()
 
 		for (int x = 0; x < 7; ++x)
 		{
-			//m_board[x] = new int[m_size.y];
 			for (int y = 0; y < 6; ++y)
 			{
 				m_circle.setPosition(sf::Vector2f(23.0f + (x*100), 110.0f + (y * 100)));
@@ -431,4 +395,9 @@ bool ConnectFour::checkTie()
 	}
 	else
 		return false;
+}
+
+void ConnectFour::setDebug()
+{
+	m_debug = true;
 }

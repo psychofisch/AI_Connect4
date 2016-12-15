@@ -41,7 +41,9 @@ public:
 	bool compareBoards(ConnectFour& other);
 	void setHuman(PlayerInfo human);
 	bool checkTie();
+	void setDebug();
 private:
+	bool m_debug;
 	sf::Vector2i m_size;
 	int** m_board;
 	sf::RenderWindow* m_window;
